@@ -69,6 +69,13 @@ public class Configuration extends Observable implements Observer {
         this.metaData.addObserver(this);
     }
 
+    public void update(Observable o, Object arg) {
+        if (arg instanceof NativeInterface.Message) {
+            setChanged();
+            notifyObservers(arg);
+        }
+    }
+
     /**
      * Gets the API key to send reports to
      *
@@ -96,7 +103,8 @@ public class Configuration extends Observable implements Observer {
      */
     public void setAppVersion(String appVersion) {
         this.appVersion = appVersion;
-        notifyBugsnagObservers(NotifyType.APP);
+        setChanged();
+        notifyObservers(new NativeInterface.Message(NativeInterface.MessageType.UPDATE_APP_VERSION, appVersion));
     }
 
     /**
@@ -117,7 +125,8 @@ public class Configuration extends Observable implements Observer {
      */
     public void setContext(String context) {
         this.context = context;
-        notifyBugsnagObservers(NotifyType.CONTEXT);
+        setChanged();
+        notifyObservers(new NativeInterface.Message(NativeInterface.MessageType.UPDATE_CONTEXT, context));
     }
 
     /**
@@ -222,7 +231,8 @@ public class Configuration extends Observable implements Observer {
     @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
     public void setBuildUUID(String buildUuid) {
         this.buildUuid = buildUuid;
-        notifyBugsnagObservers(NotifyType.APP);
+        setChanged();
+        notifyObservers(new NativeInterface.Message(NativeInterface.MessageType.UPDATE_BUILD_UUID, buildUuid));
     }
 
     /**
@@ -296,7 +306,6 @@ public class Configuration extends Observable implements Observer {
      */
     public void setNotifyReleaseStages(@Nullable String[] notifyReleaseStages) {
         this.notifyReleaseStages = notifyReleaseStages;
-        notifyBugsnagObservers(NotifyType.RELEASE_STAGES);
     }
 
     /**
@@ -343,7 +352,8 @@ public class Configuration extends Observable implements Observer {
      */
     public void setReleaseStage(String releaseStage) {
         this.releaseStage = releaseStage;
-        notifyBugsnagObservers(NotifyType.APP);
+        setChanged();
+        notifyObservers(new NativeInterface.Message(NativeInterface.MessageType.UPDATE_RELEASE_STAGE, releaseStage));
     }
 
     /**
@@ -421,16 +431,15 @@ public class Configuration extends Observable implements Observer {
      */
     protected void setMetaData(@NonNull MetaData metaData) {
         this.metaData.deleteObserver(this);
-
         //noinspection ConstantConditions
         if (metaData == null) {
             this.metaData = new MetaData();
         } else {
             this.metaData = metaData;
         }
-
+        this.setChanged();
+        this.notifyObservers(new NativeInterface.Message(NativeInterface.MessageType.UPDATE_METADATA, metaData));
         this.metaData.addObserver(this);
-        notifyBugsnagObservers(NotifyType.META);
     }
 
     /**
@@ -659,22 +668,6 @@ public class Configuration extends Observable implements Observer {
         }
 
         return false;
-    }
-
-    private void notifyBugsnagObservers(@NonNull NotifyType type) {
-        setChanged();
-        super.notifyObservers(type.getValue());
-    }
-
-    @Override
-    public void update(Observable observable, Object arg) {
-        if (arg instanceof Integer) {
-            NotifyType type = NotifyType.fromInt((Integer) arg);
-
-            if (type != null) {
-                notifyBugsnagObservers(type);
-            }
-        }
     }
 
     /**

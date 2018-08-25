@@ -3,11 +3,12 @@ package com.bugsnag.android;
 import android.support.annotation.NonNull;
 
 import java.io.IOException;
+import java.util.Observable;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
-class Breadcrumbs implements JsonStream.Streamable {
+class Breadcrumbs extends Observable implements JsonStream.Streamable {
 
     private static final int DEFAULT_MAX_SIZE = 32;
     private static final int MAX_PAYLOAD_SIZE = 4096;
@@ -31,6 +32,8 @@ class Breadcrumbs implements JsonStream.Streamable {
 
     void clear() {
         store.clear();
+        setChanged();
+        notifyObservers(new NativeInterface.Message(NativeInterface.MessageType.CLEAR_BREADCRUMBS, null));
     }
 
     void setSize(int size) {
@@ -53,6 +56,8 @@ class Breadcrumbs implements JsonStream.Streamable {
                 return;
             }
             store.add(breadcrumb);
+            setChanged();
+            notifyObservers(new NativeInterface.Message(NativeInterface.MessageType.ADD_BREADCRUMB, breadcrumb));
             if (store.size() > maxSize) {
                 // Remove oldest breadcrumb
                 store.poll();
