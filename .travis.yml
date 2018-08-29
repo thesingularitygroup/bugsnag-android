@@ -1,60 +1,141 @@
+sudo: false
 language: android
 
-android:
-  components:
-    - tools
-    - platform-tools
-    - build-tools-27.0.0
-    - android-16
-    - android-19
-    - android-21
-    - android-27
-    - extra-android-m2repository
-    - sys-img-armeabi-v7a-android-16
-    - sys-img-armeabi-v7a-android-19
-    - sys-img-armeabi-v7a-android-21
+env:
+- ADB_INSTALL_TIMEOUT=5 # increase from default of 2 mins
+
+before_install:
+- bundle install
+- export TERM=dumb
+- curl -L https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip -O
+- unzip android-ndk-r16b-linux-x86_64.zip > /dev/null
+- rm android-ndk-r16b-linux-x86_64.zip
+- export ANDROID_NDK_HOME=`pwd`/android-ndk-r16b
+- export LOCAL_ANDROID_NDK_HOME="$ANDROID_NDK_HOME"
+- export LOCAL_ANDROID_NDK_HOST_PLATFORM="linux-x86_64"
+- export PATH=$PATH:${ANDROID_NDK_HOME}
+# see https://github.com/travis-ci/travis-ci/issues/8874
+- yes | sdkmanager "platforms;android-27"
+
+before_script:
+- jdk_switcher use oraclejdk8
+- android list targets
+- echo no | android create avd --force --name test -t "$ANDROID_TARGET" --abi $ANDROID_ABI
+- emulator -avd test -no-skin -no-audio -no-window &
+- adb wait-for-device
+- while [[ `adb shell pm path android` == 'Error'* ]]; do sleep 2; done
+- adb shell input keyevent 82 &
+
+script:
+- bundle exec bugsnag-maze-runner -c features/native_crash_handling.feature --verbose
+
+jobs:
+  include:
+  - stage: test
+    env:
+    - ANDROID_EMULATOR=test
+    - ANDROID_ABI=x86_64
+    - ANDROID_TARGET=android-27
+    android:
+      components:
+      - tools
+      - platform-tools
+      - build-tools-27.0.0
+      - android-27
+      - sys-img-x86_64-android-27
+      - extra-android-m2repository
+  - stage: test
+    env:
+    - ANDROID_EMULATOR=test
+    - ANDROID_ABI=armeabi-v7a
+    - ANDROID_TARGET=android-24
+    android:
+      components:
+      - tools
+      - platform-tools
+      - build-tools-27.0.0
+      - android-24
+      - sys-img-armeabi-v7a-android-24
+      - extra-android-m2repository
+  - stage: test
+    env:
+    - ANDROID_EMULATOR=test
+    - ANDROID_ABI=armeabi-v7a
+    - ANDROID_TARGET=android-21
+    android:
+      components:
+      - tools
+      - platform-tools
+      - build-tools-27.0.0
+      - android-21
+      - sys-img-armeabi-v7a-android-21
+      - extra-android-m2repository
+  - stage: test
+    env:
+    - ANDROID_EMULATOR=test
+    - ANDROID_ABI=x86
+    - ANDROID_TARGET=android-20
+    android:
+      components:
+      - tools
+      - platform-tools
+      - build-tools-27.0.0
+      - android-20
+      - sys-img-x86-android-20
+      - extra-android-m2repository
+  - stage: test
+    env:
+    - ANDROID_EMULATOR=test
+    - ANDROID_ABI=armeabi-v7a
+    - ANDROID_TARGET=android-19
+    android:
+      components:
+      - tools
+      - platform-tools
+      - build-tools-27.0.0
+      - android-19
+      - sys-img-armeabi-v7a-android-19
+      - extra-android-m2repository
+  - stage: test
+    env:
+    - ANDROID_EMULATOR=test
+    - ANDROID_ABI=armeabi-v7a
+    - ANDROID_TARGET=android-16
+    android:
+      components:
+      - tools
+      - platform-tools
+      - build-tools-27.0.0
+      - android-16
+      - sys-img-armeabi-v7a-android-16
+      - extra-android-m2repository
+  - stage: test
+    env:
+    - ANDROID_EMULATOR=test
+    - ANDROID_ABI=armeabi-v7a
+    - ANDROID_TARGET=android-14
+    android:
+      components:
+      - tools
+      - platform-tools
+      - build-tools-27.0.0
+      - android-14
+      - sys-img-armeabi-v7a-android-14
+      - extra-android-m2repository
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
     - $HOME/.android/build-cache
 
-env:
-  matrix:
-    - ANDROID_TARGET=android-16 ANDROID_ABI=armeabi-v7a
-    - ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
-    - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
-    - ANDROID_TARGET=android-27 ANDROID_ABI=armeabi-v7a
-  global:
-    - ADB_INSTALL_TIMEOUT=5 # increase from default of 2 mins
-
-# see https://github.com/travis-ci/travis-ci/issues/8874
-before_install:
-  - yes | sdkmanager "platforms;android-27"
-  - echo y | sdkmanager "cmake;3.6.4111459"
-  - echo y | sdkmanager "ndk-bundle"
-  - echo y | sdkmanager "lldb;3.1"
-
-
-before_script:
-  # Create and start emulator
-  - android list targets
-  - jdk_switcher use oraclejdk8
-  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - adb wait-for-device
-  - while [[ `adb shell pm path android` == 'Error'* ]]; do sleep 2; done
-  - adb shell input keyevent 82 &
-
-script:
-- ./gradlew lint checkstyle createDebugCoverageReport coveralls
-- cd examples/sdk-app-example && ../../gradlew lint checkstyle connectedCheck
-
-sudo: false
+#script:
+#- ./gradlew lint checkstyle createDebugCoverageReport coveralls
+#- cd examples/sdk-app-example && ../../gradlew lint checkstyle connectedCheck
 
 before_deploy: ./gradlew javadoc
 
