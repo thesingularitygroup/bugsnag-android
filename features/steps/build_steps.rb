@@ -1,5 +1,5 @@
 When("I run {string} with the defaults") do |event_type|
-  When("I run #{event_type} against @newnexus")
+  step("I run #{event_type} against newnexus")
 end
 
 When("I start emulator {string}") do |emulator|
@@ -10,9 +10,10 @@ When("I start emulator {string}") do |emulator|
   }
 end
 
-When("I run {string}") do |event_type|
+When(/^I run (\S+)(?: against (\S+))?$/) do |event_type, emulator|
+  android_emulator = emulator.nil? ? ENV["ANDROID_EMULATOR"] : emulator
   steps %Q{
-    When I start emulator "#{ENV['ANDROID_EMULATOR']}"
+    When I start emulator "#{android_emulator}"
     And I install the "com.bugsnag.android.mazerunner" Android app from "features/fixtures/mazerunner/build/outputs/apk/release/mazerunner-release.apk"
     And I clear the "com.bugsnag.android.mazerunner" Android app data
     And I set environment variable "BUGSNAG_API_KEY" to "a35a2a72bd230ac0aa0f52715bbdc6aa"
