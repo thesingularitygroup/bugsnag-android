@@ -1,5 +1,13 @@
 # Changelog
 
+## TBD
+
+### Enhancements
+
+* [NDK] Improve support for C++ exceptions, adding the exception class name
+  and description to reports and improving the stacktrace quality
+  [#412](https://github.com/bugsnag/bugsnag-android/pull/412)
+
 ## 4.10.0 (2019-01-07)
 
 * Improve kotlin support by allowing property access
