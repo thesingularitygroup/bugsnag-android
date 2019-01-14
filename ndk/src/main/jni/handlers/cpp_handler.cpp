@@ -3,6 +3,7 @@
 #include <exception>
 #include <pthread.h>
 #include <stdexcept>
+#include <string>
 
 #include "../utils/crash_info.h"
 #include "../utils/serializer.h"

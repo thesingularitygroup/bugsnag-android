@@ -86,7 +86,7 @@ Then("the first significant stack frame methods and files should match:") do |ex
   stacktrace.each_with_index do |item, index|
     next if expected_index >= expected_frame_values.length
     expected_frame = expected_frame_values[expected_index]
-    method = `c++filt _#{item["method"]}`.chomp
+    method = `c++filt -_ _#{item["method"]}`.chomp
     method = item["method"] if method == "_#{item["method"]}"
     next if method.start_with? "bsg_" or
             method.start_with? "std::" or
