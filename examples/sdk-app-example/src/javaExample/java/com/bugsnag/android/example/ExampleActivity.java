@@ -54,6 +54,16 @@ public class ExampleActivity extends AppCompatActivity {
                 doCrash();
             }
         });
+
+        findViewById(R.id.btn_anr).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
     }
 
     private void performAdditionalBugsnagSetup() {
