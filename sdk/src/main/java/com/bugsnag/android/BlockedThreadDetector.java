@@ -2,6 +2,7 @@ package com.bugsnag.android;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 
 /**
  * Detects whether a given thread is blocked by continuously posting a {@link Runnable} to it
@@ -9,6 +10,8 @@ import android.os.Looper;
  * a configured interval.
  */
 final class BlockedThreadDetector {
+
+    private static final int DEFAULT_CHECK_INTERVAL_MS = 1000;
 
     interface Delegate {
 
@@ -22,33 +25,49 @@ final class BlockedThreadDetector {
     }
 
     final Looper looper;
+    final long checkIntervalMs;
     final long blockedThresholdMs;
     final Handler handler;
     final Delegate delegate;
 
-    volatile int tick = 0;
+    volatile long lastUpdateMs;
     volatile boolean isAlreadyBlocked = false;
 
     BlockedThreadDetector(long blockedThresholdMs,
                           Looper looper,
                           Delegate delegate) {
-        if (blockedThresholdMs <= 0 || looper == null || delegate == null) {
+        this(blockedThresholdMs, DEFAULT_CHECK_INTERVAL_MS, looper, delegate);
+    }
+
+    BlockedThreadDetector(long blockedThresholdMs,
+                          long checkIntervalMs,
+                          Looper looper,
+                          Delegate delegate) {
+        if ((blockedThresholdMs <= 0 || checkIntervalMs <= 0
+            || looper == null || delegate == null
+            || checkIntervalMs > blockedThresholdMs)) {
             throw new IllegalArgumentException();
         }
         this.blockedThresholdMs = blockedThresholdMs;
+        this.checkIntervalMs = checkIntervalMs;
         this.looper = looper;
         this.delegate = delegate;
         this.handler = new Handler(looper);
     }
 
+    void updateLivenessTimestamp() {
+        lastUpdateMs = SystemClock.elapsedRealtime();
+    }
+
     void start() {
+        updateLivenessTimestamp();
         watcherThread.start();
     }
 
     final Runnable livenessCheck = new Runnable() {
         @Override
         public void run() {
-            tick = tick + 1;
+            updateLivenessTimestamp();
         }
     };
 
@@ -56,23 +75,27 @@ final class BlockedThreadDetector {
         @Override
         public void run() {
             while (!isInterrupted()) {
-                long prevTick = tick;
                 handler.post(livenessCheck);
 
                 try {
-                    Thread.sleep(blockedThresholdMs); // throttle checks to the configured threshold
+                    Thread.sleep(checkIntervalMs); // throttle checks to the configured threshold
                 } catch (InterruptedException exc) {
                     interrupt();
                 }
+                checkIfThreadBlocked();
+            }
+        }
 
-                if (tick == prevTick) { // thread has not processed runnable and is blocked
-                    if (!isAlreadyBlocked) {
-                        delegate.onThreadBlocked(looper.getThread());
-                    }
-                    isAlreadyBlocked = true; // prevents duplicate reports for the same ANR
-                } else {
-                    isAlreadyBlocked = false;
+        private void checkIfThreadBlocked() {
+            long delta = SystemClock.elapsedRealtime() - lastUpdateMs;
+
+            if (delta > blockedThresholdMs) {
+                if (!isAlreadyBlocked) {
+                    delegate.onThreadBlocked(looper.getThread());
                 }
+                isAlreadyBlocked = true; // prevents duplicate reports for the same ANR
+            } else {
+                isAlreadyBlocked = false;
             }
         }
     };

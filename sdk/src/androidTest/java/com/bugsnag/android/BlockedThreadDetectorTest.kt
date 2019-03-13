@@ -1,10 +1,7 @@
 package com.bugsnag.android
 
 import android.os.Looper
-import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 class BlockedThreadDetectorTest {
 
@@ -12,16 +9,26 @@ class BlockedThreadDetectorTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testInvalidBlockedThresholdMs() {
-        BlockedThreadDetector(-1, looper) {}
+        BlockedThreadDetector(-1, 1, looper) {}
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testInvalidCheckIntervalMs() {
+        BlockedThreadDetector(1, -1, looper) {}
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testInvalidThread() {
-        BlockedThreadDetector(1, null) {}
+        BlockedThreadDetector(1, 1, null) {}
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testInvalidDelegate() {
-        BlockedThreadDetector(1, looper, null)
+        BlockedThreadDetector(1, 1, looper, null)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testExcessiveCheckInterval() {
+        BlockedThreadDetector(100, 1000, looper) {}
     }
 }
