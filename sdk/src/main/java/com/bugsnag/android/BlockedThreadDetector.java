@@ -61,6 +61,7 @@ final class BlockedThreadDetector {
 
     void start() {
         updateLivenessTimestamp();
+        handler.post(livenessCheck);
         watcherThread.start();
     }
 
@@ -68,6 +69,7 @@ final class BlockedThreadDetector {
         @Override
         public void run() {
             updateLivenessTimestamp();
+            handler.postDelayed(this, checkIntervalMs);
         }
     };
 
@@ -75,10 +77,11 @@ final class BlockedThreadDetector {
         @Override
         public void run() {
             while (!isInterrupted()) {
-                handler.post(livenessCheck);
+                // when we would next consider the app blocked if no timestamp updates take place
+                long nextCheckIn = Math.max(lastUpdateMs + blockedThresholdMs - SystemClock.elapsedRealtime(), 0);
 
                 try {
-                    Thread.sleep(checkIntervalMs); // throttle checks to the configured threshold
+                    Thread.sleep(nextCheckIn); // throttle checks to the configured threshold
                 } catch (InterruptedException exc) {
                     interrupt();
                 }
