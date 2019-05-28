@@ -1,0 +1,4 @@
+before_install:
+- echo "hello"
+install:
+- ./gradlew clean sdk:assemble ndk:assemble publishNDKPublicationToMavenLocal publishSDKPublicationToMavenLocal
