@@ -184,7 +184,7 @@ void bsg_populate_crumb_metadata(JNIEnv *env, bugsnag_breadcrumb *crumb,
       (*env)->CallObjectMethod(env, metadata, jni_cache->map_key_set);
   jobject keylist = (*env)->NewObject(
       env, jni_cache->arraylist, jni_cache->arraylist_init_with_obj, keyset);
-  for (int i = 0; i < size && i < sizeof(crumb->metadata); i++) {
+  for (int i = 0; i < size && i < 8; i++) {
     jstring _key = (*env)->CallObjectMethod(env, keylist,
                                             jni_cache->arraylist_get, (jint)i);
     jstring _value =

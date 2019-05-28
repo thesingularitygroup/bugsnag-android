@@ -76,7 +76,7 @@ JNIEXPORT void JNICALL Java_com_bugsnag_android_ndk_NativeBridge_install(
 
   (*env)->ReleaseStringUTFChars(env, _report_path, report_path);
   bsg_global_env = bugsnag_env;
-  BUGSNAG_LOG("Initialization complete!");
+  BUGSNAG_LOG("Initialization complete for custom build!");
 }
 
 JNIEXPORT void JNICALL
