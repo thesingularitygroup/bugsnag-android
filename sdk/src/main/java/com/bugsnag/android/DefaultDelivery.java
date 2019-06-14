@@ -63,6 +63,8 @@ class DefaultDelivery implements Delivery {
             conn.addRequestProperty("Content-Type", "application/json");
 
             for (Map.Entry<String, String> entry : headers.entrySet()) {
+                Logger.info("Adding header key:", entry.getKey());
+                Logger.info("Adding header value:", entry.getValue());
                 conn.addRequestProperty(entry.getKey(), entry.getValue());
             }
 
@@ -72,6 +74,7 @@ class DefaultDelivery implements Delivery {
                 OutputStream out = conn.getOutputStream();
                 Charset charset = Charset.forName("UTF-8");
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, charset));
+                Logger.info("Stream error:", streamable.getError());
                 stream = new JsonStream(writer);
                 streamable.toStream(stream);
             } finally {
