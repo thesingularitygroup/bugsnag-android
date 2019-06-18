@@ -74,7 +74,8 @@ class DefaultDelivery implements Delivery {
                 OutputStream out = conn.getOutputStream();
                 Charset charset = Charset.forName("UTF-8");
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, charset));
-                Logger.info("Stream error:" + streamable.getError());
+                Report report = (Report) streamable;
+                Logger.info("Stream error:" +report.getError());
                 stream = new JsonStream(writer);
                 streamable.toStream(stream);
             } finally {
