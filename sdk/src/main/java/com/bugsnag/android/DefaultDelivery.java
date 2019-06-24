@@ -9,6 +9,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.lang.StringBuilder;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -43,7 +45,14 @@ class DefaultDelivery implements Delivery {
         int status = deliver(endpoint, report, config.getErrorApiHeaders());
 
         if (status / 100 != 2) {
+            try {
             Logger.warn("Error API request failed with status " + status, null);
+            BufferedWriter stringWriter = new BufferedWriter(new StringWriter());
+            JsonStream stream = new JsonStream(stringWriter);
+            report.toStream(stream);
+            Logger.warn(stringWriter.toString());
+            } catch (IOException exception) {
+            }
         } else {
             Logger.info("Completed error API request");
         }
@@ -76,8 +85,6 @@ class DefaultDelivery implements Delivery {
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, charset));
                 stream = new JsonStream(writer);
                 streamable.toStream(stream);
-            } catch (Exception exception) {
-                Logger.warn("Error streaming things", exception);
             } finally {
                 IOUtils.closeQuietly(stream);
             }
