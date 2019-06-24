@@ -33,7 +33,11 @@ public class JsonStream extends JsonWriter {
         objectJsonStreamer = new ObjectJsonStreamer();
     }
 
-    // Allow chaining name().value()
+    /**
+     * Allow chaining name().value()
+     *
+     * @param name the name
+     */
     @NonNull
     public JsonStream name(@Nullable String name) throws IOException {
         super.name(name);
@@ -82,7 +86,7 @@ public class JsonStream extends JsonWriter {
             FileInputStream fis = new FileInputStream(file);
             input = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
             IOUtils.copy(input, out);
-        } catch(Exception exception) {
+        } catch (Exception exception) {
             Logger.warn("Exception occurred while writing to stream: ", exception);
         } finally {
             Logger.warn("Closing stream");
