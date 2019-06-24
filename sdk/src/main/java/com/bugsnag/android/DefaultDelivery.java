@@ -76,6 +76,8 @@ class DefaultDelivery implements Delivery {
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, charset));
                 stream = new JsonStream(writer);
                 streamable.toStream(stream);
+            } catch (Exception exception) {
+                Logger.warn("Error streaming things", exception);
             } finally {
                 IOUtils.closeQuietly(stream);
             }
