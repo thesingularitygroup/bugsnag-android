@@ -46,12 +46,13 @@ class DefaultDelivery implements Delivery {
 
         if (status / 100 != 2) {
             try {
-            Logger.warn("Error API request failed with status " + status, null);
-            BufferedWriter stringWriter = new BufferedWriter(new StringWriter());
-            JsonStream stream = new JsonStream(stringWriter);
-            report.toStream(stream);
-            Logger.warn(stringWriter.toString());
+                Logger.warn("Error API request failed with status " + status, null);
+                BufferedWriter stringWriter = new BufferedWriter(new StringWriter());
+                JsonStream stream = new JsonStream(stringWriter);
+                report.toStream(stream);
+                Logger.warn(stringWriter.toString());
             } catch (IOException exception) {
+                Logger.warn("Error: " + exception);
             }
         } else {
             Logger.info("Completed error API request");
