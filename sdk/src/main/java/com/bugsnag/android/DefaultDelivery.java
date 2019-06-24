@@ -74,8 +74,6 @@ class DefaultDelivery implements Delivery {
                 OutputStream out = conn.getOutputStream();
                 Charset charset = Charset.forName("UTF-8");
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, charset));
-                Report report = (Report) streamable;
-                Logger.info("Stream error:" + report);
                 stream = new JsonStream(writer);
                 streamable.toStream(stream);
             } finally {
@@ -83,6 +81,7 @@ class DefaultDelivery implements Delivery {
             }
 
             // End the request, get the response code
+            Logger.info("Response: " + conn.getResponseMessage());
             return conn.getResponseCode();
         } catch (IOException exception) {
             throw new DeliveryFailureException("IOException encountered in request", exception);
