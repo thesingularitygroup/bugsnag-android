@@ -40,7 +40,6 @@ public class JsonStream extends JsonWriter {
      */
     @NonNull
     public JsonStream name(@Nullable String name) throws IOException {
-        Logger.warn("Name being written to stream: " + name);
         return this;
     }
 
