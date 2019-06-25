@@ -40,6 +40,7 @@ public class JsonStream extends JsonWriter {
      */
     @NonNull
     public JsonStream name(@Nullable String name) throws IOException {
+        super.name(name);
         return this;
     }
 
@@ -77,14 +78,10 @@ public class JsonStream extends JsonWriter {
         // Copy the file contents onto the stream
         Reader input = null;
         try {
-            Logger.warn("Attempting to write file to stream");
             FileInputStream fis = new FileInputStream(file);
             input = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
             IOUtils.copy(input, out);
-        } catch (Exception exception) {
-            Logger.warn("Exception occurred while writing to stream: ", exception);
         } finally {
-            Logger.warn("Closing stream");
             IOUtils.closeQuietly(input);
         }
 

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.lang.StringBuilder;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -51,8 +50,7 @@ class DefaultDelivery implements Delivery {
                     Logger.warn("Delivery failed with a 400");
                     StringWriter stringWriter = new StringWriter();
                     JsonStream outStream = new JsonStream(stringWriter);
-                    JsonStream.Streamable inStream = (JsonStream.Streamable) report;
-                    inStream.toStream(outStream);
+                    report.toStream(outStream);
                     Logger.warn(stringWriter.toString());
                 } catch (IOException exception) {
                     Logger.warn("Error", exception);
