@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.lang.StringBuilder;
+import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -46,6 +47,18 @@ class DefaultDelivery implements Delivery {
 
         if (status / 100 != 2) {
             Logger.warn("Error API request failed with status " + status, null);
+            if (status == 400) {
+                try {
+                    Logger.warn("Delivery failed with a 400");
+                    StringWriter stringWriter = new StringWriter();
+                    JsonStream outStream = new JsonStream(stringWriter);
+                    JsonStream.Streamable inStream = (JsonStream.Streamable) report;
+                    inStream.toStream(outStream);
+                    Logger.warn(stringWriter.toString());
+                } catch (IOException exception) {
+                    Logger.warn("Error", exception);
+                }
+            }
         } else {
             Logger.info("Completed error API request");
         }
