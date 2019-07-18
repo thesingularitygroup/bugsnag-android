@@ -76,12 +76,12 @@ steps:
 
   - wait
 
-  - label: ':android: Android 5 end-to-end tests'
-    plugins:
-      artifacts#v1.2.0:
-        download: "build/fixture.apk"
-      docker-compose#v2.6.0:
-        run: android-maze-runner
+  # - label: ':android: Android 5 end-to-end tests'
+  #   plugins:
+  #     artifacts#v1.2.0:
+  #       download: "build/fixture.apk"
+  #     docker-compose#v2.6.0:
+  #       run: android-maze-runner
     env:
       DEVICE_TYPE: "ANDROID_5"
       APP_LOCATION: "/app/build/fixture.apk"
