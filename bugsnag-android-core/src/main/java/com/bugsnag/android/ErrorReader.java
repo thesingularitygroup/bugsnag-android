@@ -249,7 +249,7 @@ class ErrorReader {
     }
 
     private static StackTraceElement readStackFrame(JsonReader reader) throws IOException {
-        String method = null;
+        String method = "";
         String file = null;
         int lineNumber = 0;
         reader.beginObject();

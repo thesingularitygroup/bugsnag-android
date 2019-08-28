@@ -13,7 +13,6 @@
           "lineNumber": 150
         },
         {
-          "method": "java.lang.Thread.run",
           "file": "Thread.java",
           "lineNumber": 761
         }

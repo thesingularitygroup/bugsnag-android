@@ -223,7 +223,7 @@ public class ErrorReaderTest {
         assertEquals(150, frame1.getInt("lineNumber"));
 
         JSONObject frame2 = stacktrace.getJSONObject(2);
-        assertEquals("java.lang.Thread.run", frame2.getString("method"));
+        assertEquals("", frame2.getString("method"));
         assertEquals("Thread.java", frame2.getString("file"));
         assertEquals(761, frame2.getInt("lineNumber"));
     }
