@@ -7,7 +7,7 @@ fi
 
 curl --silent -L https://dl.google.com/android/repository/android-ndk-$NDK_VERSION-linux-x86_64.zip -O
 
-unzip -qq android-ndk-$NDK_VERSION-linux-x86_64.zip > /dev/null
+unzip -qq -o android-ndk-$NDK_VERSION-linux-x86_64.zip > /dev/null
 
 mv android-ndk-$NDK_VERSION $ANDROID_HOME/ndk-bundle
 rm android-ndk-$NDK_VERSION-linux-x86_64.zip
