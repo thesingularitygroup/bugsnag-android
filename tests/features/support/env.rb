@@ -29,7 +29,9 @@ Before('@skip_above_android_7') do |scenario|
 end
 
 AfterConfiguration do |config|
-  AppAutomateDriver.new(bs_username, bs_access_key, bs_local_id, bs_device, app_location)
+  AppAutomateDriver.new(bs_username, bs_access_key, bs_local_id, bs_device, app_location, {
+    :"browserstack.networkLogs" => true
+  })
   $driver.start_driver
 end
 
