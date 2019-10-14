@@ -135,7 +135,7 @@ steps:
     env:
       DEVICE_TYPE: "ANDROID_5"
       APP_LOCATION: "/app/build/fixture.apk"
-      VERBOSE: true
+      DEBUG: true
     concurrency: 5
     concurrency_group: 'browserstack-app'
 
@@ -175,7 +175,6 @@ steps:
     env:
       DEVICE_TYPE: "ANDROID_8"
       APP_LOCATION: "/app/build/fixture.apk"
-      VERBOSE: true
     concurrency: 5
     concurrency_group: 'browserstack-app'
 
