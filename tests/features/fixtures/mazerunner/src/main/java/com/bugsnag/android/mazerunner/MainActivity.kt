@@ -41,14 +41,22 @@ class MainActivity : Activity() {
     }
 
     private fun startBugsnag(eventType: String, metadata: String) {
-        val config = prepareConfig()
+        var config = prepareConfig()
+        if (metadata == "LoadConfiguration") {
+            Log.d("Bugsnag", "Loading config from appManifest")
+            var config = Configuration.loadConfig(this)
+        }
         loadScenario(config, eventType, metadata)
 
         Bugsnag.init(this, config)
     }
 
     private fun executeScenario(eventType: String, metadata: String) {
-        val config = prepareConfig()
+        var config = prepareConfig()
+        if (metadata == "LoadConfiguration") {
+            Log.d("Bugsnag", "Loading config from appManifest")
+            var config = Configuration.loadConfig(this)
+        }
         val testCase = loadScenario(config, eventType, metadata)
 
         Bugsnag.init(this, config)
