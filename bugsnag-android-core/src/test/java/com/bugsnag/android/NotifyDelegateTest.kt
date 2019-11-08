@@ -90,7 +90,6 @@ internal class NotifyDelegateTest {
 
         val stacktrace = event.errors[0].stacktrace
         assertEquals("com.bugsnag.android.NotifyDelegateTest.notifyByMessage", stacktrace[0].method)
-        // FIXME this fails
         val threadTrace = event.threads.single { it.isErrorReportingThread }
         assertTrue(stacktrace[0].method == threadTrace.stacktrace[0].method)
         validateEventMetadata(event)
@@ -103,7 +102,8 @@ internal class NotifyDelegateTest {
             exc,
             HandledState.REASON_UNHANDLED_EXCEPTION,
             null,
-            java.lang.Thread.currentThread()
+            java.lang.Thread.currentThread(),
+            null
         )
 
         assertEquals(Severity.ERROR, event.severity)

@@ -1,19 +1,14 @@
 package com.bugsnag.android
 
 import java.io.IOException
-import java.io.StringWriter
 import java.util.Date
-import java.util.HashMap
 
 class Breadcrumb internal constructor(
     val message: String,
     val type: BreadcrumbType,
-    metadata: MutableMap<String, Any>,
-    captureDate: Date = Date()
+    val metadata: MutableMap<String, Any?>,
+    val timestamp: Date = Date()
 ) : JsonStream.Streamable {
-
-    val timestamp: String = DateUtils.toIso8601(captureDate)
-    val metadata: MutableMap<String, Any> = HashMap(metadata)
 
     internal constructor(message: String) : this(
         "manual",
@@ -25,17 +20,11 @@ class Breadcrumb internal constructor(
     @Throws(IOException::class)
     override fun toStream(writer: JsonStream) {
         writer.beginObject()
-        writer.name("timestamp").value(timestamp)
+        writer.name("timestamp").value(DateUtils.toIso8601(timestamp))
         writer.name("name").value(message)
         writer.name("type").value(type.toString())
         writer.name("metaData")
-        writer.beginObject()
-
-        // sort metadata alphabetically
-        metadata.entries.sortedBy { it.key }
-            .forEach { writer.name(it.key).value(it.value) }
-
-        writer.endObject()
+        writer.value(metadata, true)
         writer.endObject()
     }
 }

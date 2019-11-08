@@ -31,30 +31,31 @@ class ExceptionHandler implements UncaughtExceptionHandler {
         boolean strictModeThrowable = strictModeHandler.isStrictModeThrowable(throwable);
 
         // Notify any subscribed clients of the uncaught exception
-        Metadata metadata;
         String violationDesc = null;
 
         if (strictModeThrowable) { // add strictmode policy violation to metadata
             violationDesc = strictModeHandler.getViolationDescription(throwable.getMessage());
-            metadata = new Metadata();
-            metadata.addMetadata(STRICT_MODE_TAB, STRICT_MODE_KEY, violationDesc);
         }
 
         String severityReason = strictModeThrowable
                 ? HandledState.REASON_STRICT_MODE : HandledState.REASON_UNHANDLED_EXCEPTION;
-        NotifyDelegate notifyDelegate = client.getNotifyDelegate();
 
         if (strictModeThrowable) { // writes to disk on main thread
             StrictMode.ThreadPolicy originalThreadPolicy = StrictMode.getThreadPolicy();
             StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX);
-
-            notifyDelegate.notifyUnhandledException(throwable,
-                    severityReason, violationDesc, thread);
+            final String desc = violationDesc;
+            client.notifyUnhandledException(throwable,
+                    severityReason, violationDesc, thread, new OnError() {
+                        @Override
+                        public boolean run(@NonNull Event event) {
+                            event.addMetadata(STRICT_MODE_TAB, STRICT_MODE_KEY, desc);
+                            return true;
+                        }
+                    });
 
             StrictMode.setThreadPolicy(originalThreadPolicy);
         } else {
-            notifyDelegate.notifyUnhandledException(throwable,
-                    severityReason, null, thread);
+            client.notifyUnhandledException(throwable, severityReason, null, thread, null);
         }
 
         // Pass exception on to original exception handler

@@ -43,15 +43,15 @@ class Event @JvmOverloads internal constructor(
 
     val unhandled = handledState.isUnhandled
 
-    var breadcrumbs: MutableList<Breadcrumb> = emptyList<Breadcrumb>().toMutableList()
+    var breadcrumbs: List<Breadcrumb> = emptyList()
 
     var projectPackages: Collection<String> = config.projectPackages
-    var errors: MutableList<Error> = when (originalError) {
-        null -> mutableListOf()
-        else -> Error.createError(originalError, projectPackages).toMutableList()
+    var errors: List<Error> = when (originalError) {
+        null -> listOf()
+        else -> Error.createError(originalError, projectPackages)
     }
 
-    var threads: MutableList<Thread> = threadState?.threads ?: mutableListOf()
+    var threads: List<Thread> = threadState?.threads ?: listOf()
 
     /**
      * Get the grouping hash associated with this Event.
@@ -91,7 +91,7 @@ class Event @JvmOverloads internal constructor(
         // Write error basics
         writer.beginObject()
         writer.name("context").value(context)
-        writer.name("metaData").value(metadata)
+        writer.name("metaData").value(metadata, true)
 
         writer.name("severity").value(severity)
         writer.name("severityReason").value(handledState)

@@ -34,7 +34,7 @@ import java.util.concurrent.RejectedExecutionException;
  * @see Bugsnag
  */
 @SuppressWarnings("checkstyle:JavadocTagContinuationIndentation")
-public class Client implements MetadataAware, CallbackAware, UserAware {
+public final class Client implements MetadataAware, CallbackAware, UserAware {
 
     private static final String SHARED_PREF_KEY = "com.bugsnag.android";
 
@@ -558,7 +558,14 @@ public class Client implements MetadataAware, CallbackAware, UserAware {
         notifyInternal(event);
     }
 
-    private void notifyInternal(@Nullable Event event) {
+    void notifyUnhandledException(Throwable throwable, String severityReason,
+                                  String desc, java.lang.Thread thread, OnError onError) {
+        Event event = notifyDelegate.notifyUnhandledException(throwable,
+                severityReason, desc, thread, onError);
+        notifyInternal(event);
+    }
+
+    void notifyInternal(@Nullable Event event) {
         if (event != null) {
             reportDeliveryDelegate.deliverEvent(event);
         }
