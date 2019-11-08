@@ -44,7 +44,7 @@ class MainActivity : Activity() {
         var config = prepareConfig()
         if (metadata == "LoadConfiguration") {
             Log.d("Bugsnag", "Loading config from appManifest")
-            var config = Configuration.loadConfig(this)
+            config = Configuration.loadConfig(this)
         }
         loadScenario(config, eventType, metadata)
 
@@ -55,7 +55,7 @@ class MainActivity : Activity() {
         var config = prepareConfig()
         if (metadata == "LoadConfiguration") {
             Log.d("Bugsnag", "Loading config from appManifest")
-            var config = Configuration.loadConfig(this)
+            config = Configuration.loadConfig(this)
         }
         val testCase = loadScenario(config, eventType, metadata)
 

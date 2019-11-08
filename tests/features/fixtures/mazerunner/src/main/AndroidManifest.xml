@@ -18,8 +18,8 @@
             </intent-filter>
         </activity>
         <meta-data android:name="com.bugsnag.android.API_KEY" android:value="ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"/>
-        <meta-data android:name="com.bugsnag.android.ENDPOINT_NOTIFY" android:value="http://bs-local.com:9339"/>
-        <meta-data android:name="com.bugsnag.android.ENDPOINT_SESSIONS" android:value="http://bs-local.com:9339"/>
+        <meta-data android:name="com.bugsnag.android.ENDPOINT" android:value="http://bs-local.com:9339"/>
+        <meta-data android:name="com.bugsnag.android.SESSIONS_ENDPOINT" android:value="http://bs-local.com:9339"/>
         <meta-data android:name="com.bugsnag.android.AUTO_CAPTURE_SESSIONS" android:value="true"/>
         <meta-data android:name="com.bugsnag.android.APP_VERSION" android:value="9.8.7"/>
         <meta-data android:name="com.bugsnag.android.RELEASE_STAGE" android:value="testing"/>
