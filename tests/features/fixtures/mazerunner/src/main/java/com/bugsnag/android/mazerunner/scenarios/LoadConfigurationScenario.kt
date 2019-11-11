@@ -17,6 +17,12 @@ internal class LoadConfigurationScenario(config: Configuration,
         super.run()
         context.startActivity(Intent("com.bugsnag.android.mazerunner.UPDATE_CONTEXT"))
 
+        Bugsnag.addOnError { error ->
+            error.addToTab("test", "redacted", "foo")
+            error.addToTab("test", "present", "bar")
+            true
+        }
+
         Bugsnag.notify(IgnorableException("Ignore me"))
 
         Bugsnag.notify(RuntimeException("LoadConfigException"))

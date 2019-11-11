@@ -1,6 +1,6 @@
-Feature: Reporting handled Exceptions
+Feature: Testing loading from configuration
 
-Scenario: Test handled Kotlin Exception
+Scenario: Test AndroidManifest is loaded from
     Given I configure the app to run in the "LoadConfiguration" state
     When I run "LoadConfigurationScenario"
     Then I wait to receive 2 requests
