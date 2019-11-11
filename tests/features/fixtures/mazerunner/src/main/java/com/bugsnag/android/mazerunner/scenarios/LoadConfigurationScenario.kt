@@ -14,6 +14,8 @@ internal class LoadConfigurationScenario(config: Configuration,
 
     override fun run() {
         super.run()
+        context.startActivity(Intent("com.bugsnag.android.mazerunner.UPDATE_CONTEXT"))
+
         Bugsnag.notify(IgnorableException("Ignore me"))
 
         Bugsnag.notify(RuntimeException("LoadConfigException"))
