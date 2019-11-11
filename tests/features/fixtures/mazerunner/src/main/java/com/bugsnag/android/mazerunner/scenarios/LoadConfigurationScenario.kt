@@ -18,8 +18,8 @@ internal class LoadConfigurationScenario(config: Configuration,
         context.startActivity(Intent("com.bugsnag.android.mazerunner.UPDATE_CONTEXT"))
 
         Bugsnag.addOnError { error ->
-            error.addToTab("test", "redacted", "foo")
-            error.addToTab("test", "present", "bar")
+            error.addMetadata("test", "redacted", "foo")
+            error.addMetadata("test", "present", "bar")
             true
         }
 
