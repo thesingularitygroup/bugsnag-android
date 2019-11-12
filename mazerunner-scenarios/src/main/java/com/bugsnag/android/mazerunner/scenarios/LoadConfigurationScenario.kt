@@ -4,6 +4,7 @@ import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Configuration
 import com.bugsnag.android.flushAllSessions
 import com.bugsnag.android.mazerunner.IgnorableException
+import com.bugsnag.android.OnError;
 
 import android.content.Context
 import android.content.Intent
@@ -29,11 +30,11 @@ internal class LoadConfigurationScenario(config: Configuration,
         Handler(thread.looper).post(Runnable {
             context.startActivity(Intent("com.bugsnag.android.mazerunner.UPDATE_CONTEXT"))
 
-            Bugsnag.addOnError { error ->
+            Bugsnag.addOnError(OnError { error ->
                 error.addMetadata("test", "redacted", "foo")
                 error.addMetadata("test", "present", "bar")
                 true
-            }
+            })
 
             flushAllSessions()
             Thread.sleep(SLEEP_MS)
