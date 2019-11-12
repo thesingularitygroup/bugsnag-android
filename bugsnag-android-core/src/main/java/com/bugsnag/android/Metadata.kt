@@ -5,7 +5,6 @@ package com.bugsnag.android
 import java.io.IOException
 import java.util.HashMap
 import java.util.HashSet
-import java.util.Observable
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -16,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Diagnostic information is presented on your Bugsnag dashboard in tabs.
  */
 internal data class Metadata @JvmOverloads constructor(private val map: Map<String, Any?> = ConcurrentHashMap()) :
-    Observable(), JsonStream.Streamable, MetadataAware {
+    JsonStream.Streamable, MetadataAware {
 
     private val store: MutableMap<String, Any?> = ConcurrentHashMap(map)
     internal val jsonStreamer = ObjectJsonStreamer()
@@ -42,14 +41,6 @@ internal data class Metadata @JvmOverloads constructor(private val map: Map<Stri
             } else {
                 insertValue(tab, key, value)
             }
-
-            setChanged()
-            notifyObservers(
-                NativeInterface.Message(
-                    NativeInterface.MessageType.ADD_METADATA,
-                    listOf(section, key, value)
-                )
-            )
         }
     }
 
@@ -65,13 +56,8 @@ internal data class Metadata @JvmOverloads constructor(private val map: Map<Stri
     }
 
     override fun clearMetadata(section: String, key: String?) {
-        setChanged()
-
         if (key == null) {
             store.remove(section)
-            notifyObservers(
-                NativeInterface.Message(NativeInterface.MessageType.CLEAR_METADATA_TAB, section)
-            )
         } else {
             val tab = store[section]
 
@@ -82,12 +68,6 @@ internal data class Metadata @JvmOverloads constructor(private val map: Map<Stri
                     store.remove(section)
                 }
             }
-
-            notifyObservers(
-                NativeInterface.Message(
-                    NativeInterface.MessageType.REMOVE_METADATA, listOf(section, key)
-                )
-            )
         }
     }
 

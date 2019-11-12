@@ -3,7 +3,9 @@
 #define BUGSNAG_ANDROID_NDK_BUGSNAG_API_H
 
 #include <jni.h>
-#include "report.h"
+#include "event.h"
+
+typedef bool (*on_error)(bugsnag_event *);
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,6 +37,13 @@ void bugsnag_set_user_env(JNIEnv *env, char* id, char* email, char* name);
  */
 void bugsnag_leave_breadcrumb(char *message, bsg_breadcrumb_t type);
 void bugsnag_leave_breadcrumb_env(JNIEnv *env, char *message, bsg_breadcrumb_t type);
+
+void bugsnag_add_on_error(on_error on_error);
+void bugsnag_add_on_error_env(JNIEnv *env, on_error on_error);
+
+void bugsnag_remove_on_error(on_error on_error);
+void bugsnag_remove_on_error_env(JNIEnv *env, on_error on_error);
+
 
 #ifdef __cplusplus
 }

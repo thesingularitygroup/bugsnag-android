@@ -7,8 +7,9 @@
 #include <android/log.h>
 #include <stdbool.h>
 
-#include "report.h"
+#include "event.h"
 #include "utils/stack_unwinder.h"
+#include "../assets/include/bugsnag.h"
 
 #ifndef BUGSNAG_LOG
 #define BUGSNAG_LOG(fmt, ...)                                                  \
@@ -32,11 +33,11 @@ typedef struct {
     /**
      * File path on disk where the next crash report will be written if needed.
      */
-    char next_report_path[384];
+    char next_event_path[384];
     /**
      * Cache of static metadata and report info. Exception/time information is populated at crash time.
      */
-    bugsnag_report next_report;
+    bugsnag_event next_event;
     /**
      * Time when installed
      */
@@ -54,9 +55,14 @@ typedef struct {
      * true if a handler has completed crash handling
      */
     bool crash_handled;
+
+    on_error on_error;
 } bsg_environment;
 
 bsg_unwinder bsg_configured_unwind_style();
+
+void bugsnag_add_on_error_env(JNIEnv *env, on_error on_error);
+bool bsg_run_on_error_cbs(bsg_environment *const env);
 
 #ifdef __cplusplus
 }

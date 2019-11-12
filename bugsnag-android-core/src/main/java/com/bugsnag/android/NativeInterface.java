@@ -71,16 +71,6 @@ public class NativeInterface {
         PAUSE_SESSION,
 
         /**
-         * Set a new app version. The Message object should be the new app
-         * version
-         */
-        UPDATE_APP_VERSION,
-        /**
-         * Set a new build UUID. The Message object should be the new build
-         * UUID string
-         */
-        UPDATE_BUILD_UUID,
-        /**
          * Set a new context. The message object should be the new context
          */
         UPDATE_CONTEXT,
@@ -91,20 +81,10 @@ public class NativeInterface {
          */
         UPDATE_IN_FOREGROUND,
         /**
-         * Set a new value for `app.lowMemory`. The message object should be a
-         * Boolean
-         */
-        UPDATE_LOW_MEMORY,
-        /**
          * Set a new value for `device.orientation`. The message object should
          * be the orientation in degrees
          */
         UPDATE_ORIENTATION,
-        /**
-         * Set a new value for `app.releaseStage`. The message object should be
-         * the new release stage
-         */
-        UPDATE_RELEASE_STAGE,
         /**
          * Set a new value for user email. The message object is a string
          */
@@ -173,13 +153,12 @@ public class NativeInterface {
      */
     @NonNull
     @SuppressWarnings("unused")
-    public static Map<String,String> getUserData() {
+    public static Map<String,String> getUser() {
         HashMap<String, String> userData = new HashMap<>();
         User user = getClient().getUser();
         userData.put("id", user.getId());
         userData.put("name", user.getName());
         userData.put("email", user.getEmail());
-
         return userData;
     }
 
@@ -188,7 +167,7 @@ public class NativeInterface {
      */
     @NonNull
     @SuppressWarnings("unused")
-    public static Map<String,Object> getAppData() {
+    public static Map<String,Object> getApp() {
         HashMap<String,Object> data = new HashMap<>();
         AppData source = getClient().getAppData();
         data.putAll(source.getAppData());
@@ -201,7 +180,7 @@ public class NativeInterface {
      */
     @NonNull
     @SuppressWarnings("unused")
-    public static Map<String,Object> getDeviceData() {
+    public static Map<String,Object> getDevice() {
         HashMap<String,Object> deviceData = new HashMap<>();
         DeviceData source = getClient().getDeviceData();
         deviceData.putAll(source.getDeviceMetadata());
@@ -386,9 +365,8 @@ public class NativeInterface {
         getClient().notify(name, message, stacktrace, new OnError() {
             @Override
             public boolean run(@NonNull Event event) {
-                if (severity != null) {
-                    event.setSeverity(severity);
-                }
+                event.updateSeverityInternal(severity);
+
                 for (Error error : event.getErrors()) {
                     error.setType("c");
                 }
