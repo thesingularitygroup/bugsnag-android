@@ -4,11 +4,14 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -58,58 +61,28 @@ public class DefaultDelivery implements Delivery {
                 JsonStream.Streamable streamable,
                 Map<String, String> headers) throws DeliveryFailureException {
 
-        Logger.setEnabled(true);
-        if (urlString.contains("notify.bugsnag.com")) {
-            String endpointOverride;
-            try {
-                // in <application> you set meta data to override the native crash endpoint
-                ApplicationInfo info = androidContext.getPackageManager().getApplicationInfo(androidContext.getPackageName(), PackageManager.GET_META_DATA);
-                Bundle bundle = info.metaData;
-                endpointOverride = bundle.getString("g4g.bugsnag_endpoint");
-                Log.i("Bugsnag-g4g", "overriding endpoint to" + endpointOverride);
-                urlString = endpointOverride;
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.wtf("Bugsnag-g4g", e);
-            }
-            Log.i("Bugsnag-g4g", "overrided endpoint? -> " + urlString);
-        }
-        if (connectivity != null && !connectivity.hasNetworkConnection()) {
-            throw new DeliveryFailureException("No network connection available", null);
-        }
-        HttpURLConnection conn = null;
+        File outputDir = new File(androidContext.getCacheDir().getAbsolutePath(), "crashes");
+        outputDir.mkdirs();
+        Log.i("Bugsnag-g4g", "overriding crash delivery, instead of upload, save to folder" + outputDir);
 
         try {
-            URL url = new URL(urlString);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setChunkedStreamingMode(0);
-            conn.addRequestProperty("Content-Type", "application/json");
+            String name = "crash_" + System.currentTimeMillis() + ".json";
+            File outputJsonFile = new File(outputDir, name);
+            OutputStream out = new FileOutputStream(outputJsonFile);
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, Charset.forName("UTF-8")));
+            JsonStream stream = new JsonStream(writer);
+            streamable.toStream(stream);
+            Log.i("Bugsnag-g4g", "saved bugsnag crash json to file: " + outputJsonFile);
+            IOUtils.closeQuietly(stream);
 
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                conn.addRequestProperty(entry.getKey(), entry.getValue());
-            }
+            // saving to file succeeded
+            return 200;
 
-            JsonStream stream = null;
-
-            try {
-                OutputStream out = conn.getOutputStream();
-                Charset charset = Charset.forName("UTF-8");
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, charset));
-                stream = new JsonStream(writer);
-                streamable.toStream(stream);
-            } finally {
-                IOUtils.closeQuietly(stream);
-            }
-
-            // End the request, get the response code
-            return conn.getResponseCode();
         } catch (IOException exception) {
-            throw new DeliveryFailureException("IOException encountered in request", exception);
+            throw new DeliveryFailureException("IOException encountered in delivery", exception);
         } catch (Exception exception) {
             Logger.warn("Unexpected error delivering payload", exception);
             return HTTP_REQUEST_FAILED;
-        } finally {
-            IOUtils.close(conn);
         }
     }
 
